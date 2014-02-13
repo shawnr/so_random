@@ -10,16 +10,13 @@ local scene = storyboard.newScene()
 --------------------------------------------
 
 -- forward declaration
-local background, title_back, pageText, sr_mark
+local background, title_back, pageText, sr_mark, so_random_button, be_still_button
 
 -- Touch listener function for background object
-local function onBackgroundTouch( self, event )
-	if event.phase == "ended" or event.phase == "cancelled" then
-		-- go to page1.lua scene
-		storyboard.gotoScene( "sorandom", "slideLeft", 800 )
+local function onStorySelect( self, event )
+	storyboard.gotoScene( event.target.story_file, "slideLeft", 800 )
 
-		return true	-- indicates successful touch
-	end
+	return true	-- indicates successful touch
 end
 
 -----------------------------------------------------------------------------------------
@@ -85,11 +82,47 @@ function scene:createScene( event )
     subtitle.anchorX = 0.5
     subtitle.anchorY = 0
 
+    local so_random_button_opts = {
+        parent = group,
+        text = "So Random",
+        font = "HoeflerText-Black",
+        fontSize = 56,
+        x = display.contentWidth * 0.5,
+        y = display.contentHeight * 0.6,
+        width = display.contentWidth * 0.8,
+        height = 0,
+        isVisible = true,
+        align = "right",
+    }
+    so_random_button = display.newEmbossedText( so_random_button_opts )
+    so_random_button:setFillColor( 1, 1, 1 )
+    so_random_button.anchorX = 0.5
+    so_random_button.anchorY = 0.5
+    so_random_button.story_file = 'sorandom'
+
+    local be_still_button_opts = {
+        parent = group,
+        text = "Be Still",
+        font = "HoeflerText-Black",
+        fontSize = 56,
+        x = display.contentWidth * 0.5,
+        y = display.contentHeight * 0.6 + so_random_button.height + 10,
+        width = display.contentWidth * 0.8,
+        height = 0,
+        isVisible = true,
+        align = "right",
+    }
+    be_still_button = display.newEmbossedText( be_still_button_opts )
+    be_still_button:setFillColor( 1, 1, 1 )
+    be_still_button.anchorX = 0.5
+    be_still_button.anchorY = 0.5
+    be_still_button.story_file = 'be_still'
+
     local helptext_options = {
         parent = group,
-        text = "[ Touch to continue. ]",
+        text = "[ Select a Story ]",
         font = "HoeflerText-Regular",
-        fontSize = 44,
+        fontSize = 42,
         x = display.contentWidth * 0.5,
         y = display.contentHeight - 50,
         width = display.contentWidth * 0.8,
@@ -109,6 +142,8 @@ function scene:createScene( event )
 	group:insert( pageText )
 	group:insert( subtitle )
 	group:insert( helptext )
+    group:insert( so_random_button )
+    group:insert( be_still_button )
 
 end
 
@@ -116,8 +151,11 @@ end
 function scene:enterScene( event )
 	local group = self.view
 
-	background.touch = onBackgroundTouch
-	background:addEventListener( "touch", background )
+	so_random_button.tap = onStorySelect
+	so_random_button:addEventListener( "tap", so_random_button )
+
+    be_still_button.tap = onStorySelect
+    be_still_button:addEventListener( "tap", be_still_button )
 end
 
 -- Called when scene is about to move offscreen:
@@ -125,7 +163,9 @@ function scene:exitScene( event )
 	local group = self.view
 
 	-- remove event listener from background
-	background:removeEventListener( "touch", background )
+	so_random_button:removeEventListener( "tap", so_random_button )
+
+    be_still_button:removeEventListener( "tap", be_still_button )
 end
 
 -- If scene's view is removed, scene:destroyScene() will be called just prior to:
